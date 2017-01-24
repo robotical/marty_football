@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<launch>
+    <rosparam file="$(find ball_following)/cfg/parameters.cfg" command="load" />
+    <node name="ball_tracker" respawn="false" pkg="ball_following" type="ball_tracker" output="screen" clear_params="true">
+    </node>
+</launch>

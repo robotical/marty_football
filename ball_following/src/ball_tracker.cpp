@@ -47,7 +47,6 @@ class BallTracker {
 
  public:
   void callback(camera_test::dyn_paramConfig& config, uint32_t level) {
-    ROS_INFO("RECONFIG");
     hmn = config.hmin;
     hmx = config.hmax;
     smn = config.smin;
@@ -58,9 +57,9 @@ class BallTracker {
   BallTracker()
     : it_(nh_) {
     if (VERS == 0) {
-      ROS_INFO("CV2");
+      ROS_DEBUG("CV2");
     } else if (VERS == 1) {
-      ROS_INFO("CV3");
+      ROS_DEBUG("CV3");
     }
     // Subscrive to input video feed and publish output video feed
     image_sub_ = it_.subscribe("/camera/image_raw", 1,
@@ -96,7 +95,7 @@ class BallTracker {
     // cv::createTrackbar("vmin", "ValComp", &vmin, 255);
     // int vmax = 255;
     // cv::createTrackbar("vmax", "ValComp", &vmax, 255);
-
+    ROS_INFO("BallTracker Ready!");
   }
 
   ~BallTracker() {
@@ -154,9 +153,6 @@ class BallTracker {
       geometry_msgs::Pose2D ball_msg;
       if (circles.rows > 0) {
         for (int i = 0; i < circles.rows; ++i) {
-          // ROS_INFO_STREAM("1: " << int(round(circles.at<float>(0, 0))) <<
-          //                 " 2: " << int(round(circles.at<float>(0, 1))) <<
-          //                 " 3: " << int(round(circles.at<float>(0, 2))));
           ball_msg.x = round(circles.at<float>(0, 0));
           ball_msg.y = round(circles.at<float>(0, 1));
           ball_msg.theta = round(circles.at<float>(0, 2));

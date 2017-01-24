@@ -104,9 +104,9 @@ generate_dynamic_reconfigure_options(
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+ INCLUDE_DIRS include
 #  LIBRARIES ball_following
-#  CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs
+ CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs marty_msgs
 #  DEPENDS system_lib
 )
 
@@ -123,12 +123,13 @@ else()
 	set(CMAKE_CXX_COMPILER "/usr/bin/clang++-${VERS}")
 	set(CMAKE_C_COMPILER "/usr/bin/clang-${VERS}")
 endif()
-set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -Wno-deprecated-register -O2")
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -O2")
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
 include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
