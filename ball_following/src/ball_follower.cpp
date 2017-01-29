@@ -1,8 +1,8 @@
 /**
  * @file      ball_follower.cpp
- * @brief     Marty Core header providing access to Marty methods
+ * @brief     Marty follows the ball, and attempts to score
  * @author    Alejandro Bordallo <alex.bordallo@robotical.io>
- * @date      2016-02-06
+ * @date      2017-01-27
  * @copyright (Apache) 2016 Robotical Ltd.
  */
 
@@ -16,6 +16,7 @@ BallFollower::BallFollower(ros::NodeHandle& nh) : nh_(nh) {
 }
 
 BallFollower::~BallFollower() {
+  ros::param::del("/ball_follower");
 }
 
 void BallFollower::loadParams() {

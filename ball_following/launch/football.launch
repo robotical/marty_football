@@ -1,9 +1,8 @@
 <?xml version="1.0"?>
 
 <launch>
-    <rosparam file="$(find ball_following)/cfg/parameters.cfg" command="load" />
-    <node name="ball_tracker" respawn="false" pkg="ball_following" type="ball_tracker" output="screen" clear_params="true">
-    </node>
-    <node name="ball_follower" respawn="false" pkg="ball_following" type="ball_follower" output="screen" clear_params="true">
-    </node>
+  <include file="$(find raspicam)/launch/raspicam.launch"/>
+  <include file="$(find ball_following)/launch/tracker.launch"/>
+  <include file="$(find ball_following)/launch/apriltag.launch"/>
+  <!-- <include file="$(find ball_following)/launch/follower.launch"/> -->
 </launch>

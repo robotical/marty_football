@@ -1,8 +1,8 @@
 /**
  * @file      ball_follower.hpp
- * @brief     Marty follows the position of a ball
+ * @brief     Marty follows the ball, and attempts to score
  * @author    Alejandro Bordallo <alex.bordallo@robotical.io>
- * @date      2016-02-06
+ * @date      2017-01-27
  * @copyright (Apache) 2016 Robotical Ltd.
  */
 

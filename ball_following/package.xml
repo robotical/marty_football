@@ -4,9 +4,14 @@
   <version>0.0.0</version>
   <description>The ball_following package</description>
 
-  <maintainer email="alex@robotical.io">Alejandro Bordallo</maintainer>
+  <maintainer email="alex.bordallo@robotical.io">Alejandro Bordallo</maintainer>
 
   <license>Apache</license>
+
+  <!-- <url type="website">http://wiki.ros.org/ros_marty</url> -->
+  <url type="website">http://robotical.io/</url>
+
+  <author email="alex.bordallo@robotical.io">Alejandro Bordallo</author>
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>cv_bridge</build_depend>

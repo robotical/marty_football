@@ -1,3 +1,11 @@
+/**
+ * @file      ball_tracker.cpp
+ * @brief     Marty tracks the ball, configure through rqt
+ * @author    Alejandro Bordallo <alex.bordallo@robotical.io>
+ * @date      2017-01-26
+ * @copyright (Apache) 2016 Robotical Ltd.
+ */
+
 #include <ros/ros.h>
 #include <dynamic_reconfigure/server.h>
 #include <image_transport/image_transport.h>
@@ -99,6 +107,7 @@ class BallTracker {
   }
 
   ~BallTracker() {
+    ros::param::del("/ball_tracker");
     cv::destroyAllWindows();
   }
 
