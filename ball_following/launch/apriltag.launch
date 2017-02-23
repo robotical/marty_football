@@ -1,8 +1,9 @@
 <launch>
-  <node pkg="apriltags_ros" type="apriltag_detector_node" name="apriltag_detector" output="screen">
+  <node name="image_throttle" type="throttle" pkg="topic_tools" args="messages camera/image 4" />
+ -->  <node pkg="apriltags_ros" type="apriltag_detector_node" name="apriltag_detector" output="screen">
     <!-- Remap topic required by the node to custom topics -->
-    <remap from="image_rect" to="/camera/image_raw" />
-    <remap from="camera_info" to="/camera/camera_info" />
+    <!-- <remap from="camera/camera_info" to="camera/camera_info_throttle" /> -->
+    <remap from="image_rect" to="camera/image_throttle" />
 
     <!-- Optional: Subscribe to the compressed stream-->
     <param name="image_transport" type="str" value="raw" />

@@ -62,23 +62,23 @@ class BallTracker {
     vmn = config.vmin;
     vmx = config.vmax;
   }
-  BallTracker()
-    : it_(nh_) {
+  BallTracker(ros::NodeHandle& nh)
+    : nh_(nh), it_(nh_) {
     if (VERS == 0) {
       ROS_DEBUG("CV2");
     } else if (VERS == 1) {
       ROS_DEBUG("CV3");
     }
     // Subscrive to input video feed and publish output video feed
-    image_sub_ = it_.subscribe("/camera/image_raw", 1,
+    image_sub_ = it_.subscribe("camera/image", 1,
                                &BallTracker::imageCb, this);
-    image_pub_ = it_.advertise("/camera/output_image", 1);
-    HueComp_pub_ = it_.advertise("/camera/hue", 1);
-    SatComp_pub_ = it_.advertise("/camera/sat", 1);
-    ValComp_pub_ = it_.advertise("/camera/val", 1);
-    Detection_pub_ = it_.advertise("/camera/detection", 1);
+    image_pub_ = it_.advertise("image", 1);
+    HueComp_pub_ = it_.advertise("hue", 1);
+    SatComp_pub_ = it_.advertise("sat", 1);
+    ValComp_pub_ = it_.advertise("val", 1);
+    Detection_pub_ = it_.advertise("detection", 1);
 
-    ball_pos_pub_ = nh_.advertise<geometry_msgs::Pose2D>("/ball_pos", 1000);
+    ball_pos_pub_ = nh_.advertise<geometry_msgs::Pose2D>("ball_pos", 1000);
 
     f = boost::bind(&BallTracker::callback, this, _1, _2);
     server.setCallback(f);
@@ -200,7 +200,8 @@ class BallTracker {
 
 int main(int argc, char** argv) {
   ros::init(argc, argv, "ball_tracker");
-  BallTracker ic;
+  ros::NodeHandle nh;
+  BallTracker ic(nh);
   ros::spin();
   return 0;
 }

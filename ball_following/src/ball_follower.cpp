@@ -64,8 +64,9 @@ void BallFollower::init() {
 }
 
 void BallFollower::rosSetup() {
-  ball_pos_sub_ = nh_.subscribe("/ball_pos", 1000, &BallFollower::ballCB, this);
-  command_srv_ = nh_.serviceClient<marty_msgs::Command>("/command");
+  ball_pos_sub_ = nh_.subscribe("ball_tracker/ball_pos", 1000,
+                                &BallFollower::ballCB, this);
+  command_srv_ = nh_.serviceClient<marty_msgs::Command>("marty/command");
   action_timer_ = nh_.createTimer(ros::Duration(2), &BallFollower::acCB, this);
 }
 
