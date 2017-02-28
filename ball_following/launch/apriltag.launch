@@ -1,12 +1,12 @@
 <launch>
   <node name="image_throttle" type="throttle" pkg="topic_tools" args="messages camera/image 4" />
- -->  <node pkg="apriltags_ros" type="apriltag_detector_node" name="apriltag_detector" output="screen">
+  <node pkg="apriltags_ros" type="apriltag_detector_node" name="apriltag_detector" output="screen">
     <!-- Remap topic required by the node to custom topics -->
     <!-- <remap from="camera/camera_info" to="camera/camera_info_throttle" /> -->
     <remap from="image_rect" to="camera/image_throttle" />
 
     <!-- Optional: Subscribe to the compressed stream-->
-    <param name="image_transport" type="str" value="raw" />
+    <param name="image_transport" type="str" value="compressed" />
 
     <!-- Select the tag family: 16h5, 25h7, 25h9, 36h9, or 36h11(default) -->
     <param name="tag_family" type="str" value="36h11" />

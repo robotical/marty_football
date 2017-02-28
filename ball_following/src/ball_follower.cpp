@@ -28,39 +28,42 @@ void BallFollower::loadParams() {
   nh_.param<int>("ball_size_th", ball_size_th_, 30);
   nh_.param<int>("goal_th", goal_th_, 20);
   nh_.param<double>("apriltag_off", apriltag_off_, -7.5);
+  nh_.param<double>("move_time", move_time_, 1.8);
+  nh_.param<double>("refresh_time", refresh_time_, 2.0);
 }
 
 void BallFollower::init() {
+  last_seen_dir_ = 1; //  Left -1, Right +1
   stop_.request.data.push_back(stop_.request.CMD_STOP);
 
   follow_.request.data.push_back(follow_.request.CMD_WALK);
   follow_.request.data.push_back(1);          //  Steps
   follow_.request.data.push_back(0);          //  Turn
-  follow_.request.data.push_back(1800);       //  MoveTime
-  follow_.request.data.push_back(40);         //  StepLength
+  follow_.request.data.push_back(move_time_ * 1000);     //  MoveTime
+  follow_.request.data.push_back(50);         //  StepLength
 
   turn_.request.data.push_back(turn_.request.CMD_WALK);
   turn_.request.data.push_back(2);            //  Steps
   turn_.request.data.push_back(turn_amount_); //  Turn
-  turn_.request.data.push_back(1800);         //  MoveTime
+  turn_.request.data.push_back(move_time_ * 1000);       //  MoveTime
   turn_.request.data.push_back(0);            //  StepLength
 
   walk_.request.data.push_back(walk_.request.CMD_WALK);
   walk_.request.data.push_back(1);            //  Steps
   walk_.request.data.push_back(0);            //  Turn
-  walk_.request.data.push_back(1800);         //  MoveTime
+  walk_.request.data.push_back(move_time_ * 1000);       //  MoveTime
   walk_.request.data.push_back(0);            //  StepLength
   walk_.request.data.push_back(-1);           //  Side
 
   side_step_.request.data.push_back(side_step_.request.CMD_SIDESTEP);
   side_step_.request.data.push_back(0);      //  CMD_LEFT = 0
   side_step_.request.data.push_back(1);      //  Steps
-  side_step_.request.data.push_back(1800);   //  MoveTime
+  side_step_.request.data.push_back(move_time_ * 1000); //  MoveTime
   side_step_.request.data.push_back(50);     //  StepLength
 
   kick_.request.data.push_back(kick_.request.CMD_KICK);
   kick_.request.data.push_back(1);            //  CMD_LEFT = 0
-  kick_.request.data.push_back(1800);         //  MoveTime
+  kick_.request.data.push_back(move_time_ * 1000);       //  MoveTime
 }
 
 void BallFollower::rosSetup() {
@@ -76,60 +79,85 @@ void BallFollower::ballCB(const geometry_msgs::Pose2D& msg) {
 }
 
 void BallFollower::followBall() {
-  if (ball_pos_.x < 160 - ball_x_th_) {
-    ROS_INFO("Walking Left");
-    follow_.request.data[2] = turn_amount_;
-  } else if (ball_pos_.x > 160 + ball_x_th_) {
-    ROS_INFO("Walking Right");
-    follow_.request.data[2] = -turn_amount_;
-  } else {
-    ROS_INFO("Walking Straight");
-    follow_.request.data[2] = 0;
-  }
+  float turn_rate = ((ball_pos_.x - 160) / 160 ) * (float)turn_amount_;
+  ROS_WARN_STREAM("Turn: " << turn_rate <<
+                  " Move: " << 50 - std::abs(turn_rate)) ;
+  // if (ball_pos_.x < 160 - ball_x_th_) {
+  //   ROS_INFO("Walking Left");
+  //   follow_.request.data[2] = -turn_amount_;
+  // } else if (ball_pos_.x > 160 + ball_x_th_) {
+  //   ROS_INFO("Walking Right");
+  //   follow_.request.data[2] = turn_amount_;
+  // } else {
+  //   ROS_INFO("Walking Straight");
+  //   follow_.request.data[2] = 0;
+  // }
+  last_seen_dir_ = turn_rate / std::abs(turn_rate);
+  follow_.request.data[2] = turn_rate;           // Turn proportionally to ball
+  follow_.request.data[4] = 50 -
+                            (2 * std::abs(turn_rate)); //  Go slower if turning
   commands_.push(follow_);
 }
 
 void BallFollower::alignToGoal() {
   ROS_INFO("Aligning to Goal");
   if (ball_pos_.x < 160) {
+    last_seen_dir_ = -1;
+    ROS_WARN("SIDESTEP LEFT");
     side_step_.request.data[1] = 0;         // Sidestep Left
   } else {
+    last_seen_dir_ = 1;
+    ROS_WARN("SIDESTEP RIGHT");
     side_step_.request.data[1] = 1;         // Sidestep Right
   }
   if (goal_angle_ > 0) {
     ROS_WARN("ALIGN LEFT");
-    turn_.request.data[2] = turn_amount_;   // Turn Left
+    turn_.request.data[2] =
+      - std::fmin(std::fabs(goal_angle_), (float)turn_amount_); // Turn Left
   } else {
     ROS_WARN("ALIGN RIGHT");
-    turn_.request.data[2] = -turn_amount_;  // Turn Right
+    turn_.request.data[2] =
+      std::fmin(std::fabs(goal_angle_), (float)turn_amount_);   // Turn Right
   }
   walk_.request.data[4] = 0;    // Recover after turn
   walk_.request.data[5] = -1;   // No side preference
   commands_.push(side_step_);
-  commands_.push(turn_);
-  commands_.push(walk_);
+  if (std::fabs(goal_angle_) > goal_th_) {
+    turn_.request.data[1] = 2;
+    commands_.push(turn_);
+    turn_.request.data[1] = 0;
+    commands_.push(turn_);
+    // commands_.push(walk_);
+  }
 }
 
 void BallFollower::turnAround() {
-  ROS_INFO("Turning Around");
-  turn_.request.data[2] = turn_amount_;
+  ROS_WARN_STREAM("Turning Around: " << last_seen_dir_);
+  turn_.request.data[1] = 2;
+  turn_.request.data[2] = last_seen_dir_ * turn_amount_;
+  commands_.push(turn_);
+  turn_.request.data[1] = 0;
   commands_.push(turn_);
 }
 
 void BallFollower::kickBall() {
-  ROS_INFO("Kicking Ball");
-  walk_.request.data[5] = -1;  // No side preference
+  ROS_WARN("Kicking Ball");
+  int pref_side = -1; // No side preference
+  walk_.request.data[5] = pref_side;
   walk_.request.data[4] = 50;
   commands_.push(walk_);
   commands_.push(walk_);
   if (ball_pos_.x < 160) {
-    walk_.request.data[5] = 1;  // Step Right
+    last_seen_dir_ = -1;
+    // pref_side = 1;              // Step Right
     kick_.request.data[1] = 0;  // Kick Left
   } else {
-    walk_.request.data[5] = 0;  // Step Left
+    last_seen_dir_ = 1;
+    // pref_side = 0;              // Step Left
     kick_.request.data[1] = 1;  // Kick Right
   }
-  walk_.request.data[4] = 50;
+  // walk_.request.data[5] = pref_side;
+  walk_.request.data[4] = 0;
   commands_.push(walk_);
   commands_.push(kick_);
 }
@@ -150,7 +178,9 @@ void BallFollower::acCB(const ros::TimerEvent& e) {
   {ball_aligned_ = true;} else {ball_aligned_ = false;}
   if (std::fabs(goal_angle_) < goal_th_)
   {goal_aligned_ = true;} else {goal_aligned_ = false;}
-  if ((ball_pos_.theta > ball_size_th_) && (ball_pos_.y > ball_y_th_))
+  ROS_INFO_STREAM("BALLSIZE: " << ball_size_th_);
+  // if ((ball_pos_.theta > ball_size_th_) && (ball_pos_.y > ball_y_th_))
+  if (ball_pos_.y > ball_y_th_)
   {ball_close_ = true;} else {ball_close_ = false;}
   ROS_INFO_STREAM("BallPos X: " << ball_pos_.x <<
                   " BallPos Y: " << ball_pos_.y <<

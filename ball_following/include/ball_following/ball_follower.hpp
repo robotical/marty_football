@@ -61,6 +61,9 @@ class BallFollower {
   int ball_size_th_;
   int goal_th_;
   double apriltag_off_;
+  double move_time_;
+  double refresh_time_;
+  int last_seen_dir_;
 
   // Variables
   float goal_angle_;
