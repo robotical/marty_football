@@ -6,7 +6,7 @@
     <remap from="image_rect" to="camera/image_throttle" />
 
     <!-- Optional: Subscribe to the compressed stream-->
-    <param name="image_transport" type="str" value="compressed" />
+    <param name="image_transport" type="str" value="raw" />
 
     <!-- Select the tag family: 16h5, 25h7, 25h9, 36h9, or 36h11(default) -->
     <param name="tag_family" type="str" value="36h11" />
