@@ -17,7 +17,7 @@ BallFollower::BallFollower(ros::NodeHandle& nh) : nh_(nh),
 }
 
 BallFollower::~BallFollower() {
-  ros::param::del("/ball_follower");
+  ros::param::del("ball_follower");
   command_srv_.call(stop_);
 }
 
@@ -64,10 +64,11 @@ void BallFollower::init() {
 }
 
 void BallFollower::rosSetup() {
-  ball_pos_sub_ = nh_.subscribe("ball_tracker/ball_pos", 1000,
+  ball_pos_sub_ = nh_.subscribe("ball_pos", 1000,
                                 &BallFollower::ballCB, this);
-  command_srv_ = nh_.serviceClient<marty_msgs::Command>("marty/command");
-  action_timer_ = nh_.createTimer(ros::Duration(2), &BallFollower::acCB, this);
+  command_srv_ = nh_.serviceClient<marty_msgs::Command>("command");
+  action_timer_ = nh_.createTimer(ros::Duration(refresh_time_),
+                                  &BallFollower::acCB, this);
 }
 
 void BallFollower::ballCB(const geometry_msgs::Pose2D& msg) {
@@ -199,7 +200,7 @@ void BallFollower::stopRobot() {
 
 int main(int argc, char** argv) {
   ros::init(argc, argv, "ball_follower");
-  ros::NodeHandle nh("~");
+  ros::NodeHandle nh("");
   BallFollower ball_follower(nh);
 
   ros::Rate r(10);

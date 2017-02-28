@@ -15,7 +15,7 @@
 #include <opencv2/highgui/highgui.hpp>
 
 #include <geometry_msgs/Pose2D.h>
-#include <camera_test/dyn_paramConfig.h>
+#include <ball_following/dyn_paramConfig.h>
 
 #include "opencv2/core/version.hpp"
 #if CV_MAJOR_VERSION == 2
@@ -34,8 +34,8 @@ class BallTracker {
   image_transport::Publisher ValComp_pub_;
   image_transport::Publisher Detection_pub_;
 
-  dynamic_reconfigure::Server<camera_test::dyn_paramConfig> server;
-  dynamic_reconfigure::Server<camera_test::dyn_paramConfig>::CallbackType f;
+  dynamic_reconfigure::Server<ball_following::dyn_paramConfig> server;
+  dynamic_reconfigure::Server<ball_following::dyn_paramConfig>::CallbackType f;
 
   ros::Publisher ball_pos_pub_;
   cv::Mat frame;
@@ -54,7 +54,7 @@ class BallTracker {
   int vmx = 255;
 
  public:
-  void callback(camera_test::dyn_paramConfig& config, uint32_t level) {
+  void callback(ball_following::dyn_paramConfig& config, uint32_t level) {
     hmn = config.hmin;
     hmx = config.hmax;
     smn = config.smin;

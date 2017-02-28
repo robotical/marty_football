@@ -1,11 +1,10 @@
 <?xml version="1.0"?>
 
 <launch>
-  <!-- <include file="$(find raspicam)/launch/raspicam.launch"/> -->
   <arg name="name" default="marty" /> <!-- Change Marty's name-->
   <group ns="$(arg name)">
     <include file="$(find ball_following)/launch/tracker.launch"/>
     <include file="$(find ball_following)/launch/apriltag.launch"/>
+    <include file="$(find ball_following)/launch/follower.launch"/>
   </group>
-  <!-- <include file="$(find ball_following)/launch/follower.launch"/> -->
 </launch>
